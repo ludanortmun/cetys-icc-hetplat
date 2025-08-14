@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/dark-style.css">
+    <title>Selector specificity</title>
+</head>
+<style>
+
+    #my-paragraph {
+        color: blue;
+    }
+
+    .main-text {
+        color: red;
+    }
+
+    p {
+        color: green;
+    }
+
+</style>
+<body>
+    <p id="my-paragraph" class="main-text">
+        This should be blue.
+    </p>
+
+    <p id="another-paragraph" class="main-text">
+        This should be red.
+    </p>
+
+    <p id="any-id" class="another-class">
+        This should be green.
+    </p>
+</body>
+</html>

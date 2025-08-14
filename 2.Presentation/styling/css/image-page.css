@@ -1,0 +1,22 @@
+body {
+    background-color: #fafafa;
+}
+
+main {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: x-large;
+    width: 50vw;
+    height: 100vh;
+    margin: 0 auto;
+    padding: 10vh 15vw;
+}
+
+img#anis {
+    width: 240px;
+    padding: 1rem;
+    border-radius: 50px;
+}
+
+img#anis:hover {
+    filter: drop-shadow(10px 10px 15px rgba(0, 0, 0, 0.5));
+}
