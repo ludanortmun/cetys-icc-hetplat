@@ -23,9 +23,6 @@ namespace FormsSampleApp.Controllers
         {
             if (ModelState.IsValid)
             {
-                ViewBag.From = model.From;
-                ViewBag.To = model.To;
-                ViewBag.Message = model.Message;
                 return View(model);
             }
             return BadRequest();
