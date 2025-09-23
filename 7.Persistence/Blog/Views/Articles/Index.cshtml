@@ -1,0 +1,31 @@
+﻿@model IEnumerable<Blog.Models.Article>
+
+@{
+    ViewData["Title"] = "Blog";
+
+    string? authorEmail = null;
+    DateTimeOffset? startDate = null;
+    DateTimeOffset? endDate = null;
+}
+
+<h1>Published Articles</h1>
+
+<form class="row row-cols-lg-auto g-3 align-items-center" asp-action="Index" method="get">
+    <div class="col-12">
+        <label class="visually-hidden"
+               asp-for="@startDate">Start date</label>
+        <input class="form-control"
+               type="date" asp-for="@startDate" />
+    </div>
+    <div class="col-12">
+        <label class="visually-hidden"
+               asp-for="@endDate">End date</label>
+        <input class="form-control"
+               type="date" asp-for="@endDate" />
+    </div>
+    <div class="col-12">
+        <button class="btn btn-primary" type="submit">Filter</button>
+    </div>
+</form>
+
+TODO: Render existing articles
