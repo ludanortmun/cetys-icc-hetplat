@@ -11,7 +11,23 @@ namespace Blog
             // Add services to the container.
             builder.Services.AddControllersWithViews();
 
-            builder.Services.AddSingleton<IArticleRepository, MemoryArticleRepository>();
+            var databaseConfig = builder.Configuration.GetSection("DatabaseConfig").Get<DatabaseConfig>();
+            if (databaseConfig!.UseInMemoryDatabase)
+            {
+                builder.Services.AddSingleton<IArticleRepository, MemoryArticleRepository>();
+            }
+            else
+            {
+                builder.Services.AddSingleton<IArticleRepository>(services =>
+                {
+                    var config = services.GetRequiredService<IConfiguration>();
+                    var repository = new ArticleRepository(databaseConfig);
+
+                    repository.EnsureCreated();
+
+                    return repository;
+                });
+            }
 
             var app = builder.Build();
 
