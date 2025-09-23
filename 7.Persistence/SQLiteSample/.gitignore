@@ -1,0 +1,15 @@
+# Build artifacts
+bin/
+obj/
+
+# Database files (should not be committed to version control)
+*.db
+*.sqlite
+*.sqlite3
+
+# IDE and OS files
+.vs/
+.vscode/
+*.user
+.DS_Store
+Thumbs.db
