@@ -64,7 +64,7 @@ namespace OrderNotifications
                     },
                 }
             };
-            Console.WriteLine("Should send notification via Email only");
+            Console.WriteLine("Should not send any notification");
             notificationService.NotifyOrderStatus(akOrder);
 
             var mxOrderWithSmsPreference = new Order
