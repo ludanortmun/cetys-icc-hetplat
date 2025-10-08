@@ -90,6 +90,30 @@ namespace OrderNotifications
 
             Console.WriteLine("Should send notification via Email, WhatsApp and SMS ");
             notificationService.NotifyOrderStatus(mxOrderWithSmsPreference);
+
+            var orderNoEmail = new Order
+            {
+                Id = Guid.NewGuid(),
+                Status = OrderStatus.Delivered,
+                Customer = new Customer
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "James",
+                    CountryCode = "US",
+                    ContactInfo = new ContactInfo
+                    {
+                        Email = "james@gmail.com",
+                        PhoneNumber = "1234567890"
+                    },
+                    Preferences = new Dictionary<NotificationChannel, NotificationChannelPreference>()
+                    {
+                        { NotificationChannel.Email, NotificationChannelPreference.Disabled }
+                    }
+                }
+            };
+            Console.WriteLine("Should send notification via SMS only");
+            notificationService.NotifyOrderStatus(orderNoEmail);
+
         }
     }
 }
