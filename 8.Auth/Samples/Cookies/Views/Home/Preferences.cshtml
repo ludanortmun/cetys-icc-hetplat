@@ -1,0 +1,36 @@
+﻿@model Cookies.Models.UserPreference
+
+@{
+    ViewData["Title"] = "Preferences";
+}
+
+<h1>Preferences</h1>
+
+<h4>UserPreference</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Preferences">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="DisplayName" class="control-label"></label>
+                <input asp-for="DisplayName" class="form-control" />
+                <span asp-validation-for="DisplayName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <select class="form-control form-select" asp-for="PreferredDateFormat" class="form-control" asp-items="Html.GetEnumSelectList<Cookies.Models.DateFormat>()">
+                </select>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

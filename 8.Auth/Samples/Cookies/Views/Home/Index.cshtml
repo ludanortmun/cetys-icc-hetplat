@@ -1,0 +1,30 @@
+﻿@model Cookies.Models.UserPreference;
+
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+    @if (Model?.DisplayName != null)
+    {
+        <h2>Hello, @Model.DisplayName!</h2>
+    }
+    else
+    {
+        <h1 class="display-4">Welcome</h1>
+    }
+    <p>Today is @FormatDate(DateTime.Now, Model?.PreferredDateFormat)</p>
+</div>
+
+@functions {
+    private string FormatDate(DateTime date, Cookies.Models.DateFormat? format)
+    {
+        return format switch
+        {
+            Cookies.Models.DateFormat.MMDDYYYY => date.ToString("MM/dd/yyyy"),
+            Cookies.Models.DateFormat.DDMMYYYY => date.ToString("dd/MM/yyyy"),
+            Cookies.Models.DateFormat.YYYYMMDD => date.ToString("yyyy/MM/dd"),
+            null or _ => date.ToString("yyyy/MM/dd"),
+        };
+    }
+}
