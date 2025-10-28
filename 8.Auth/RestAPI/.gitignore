@@ -433,3 +433,5 @@ FodyWeavers.xsd
 *.db
 *.db3
 *.sqlitedb
+*.db-shm
+*.db-wal

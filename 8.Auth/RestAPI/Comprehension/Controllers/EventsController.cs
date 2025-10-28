@@ -42,6 +42,12 @@ namespace Comprehension.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutEvent(Guid id, Event @event)
         {
+            // Ensures the ID is populated
+            if (@event.Id == default)
+            {
+                @event.Id = id;
+            }
+
             if (id != @event.Id)
             {
                 return BadRequest();
@@ -49,7 +55,7 @@ namespace Comprehension.Controllers
 
             if (!IsValid(@event))
             {
-                return BadRequest("Invalid event data.");
+                return BadRequest("Invalid data.");
             }
 
             _context.Entry(@event).State = EntityState.Modified;
@@ -80,7 +86,7 @@ namespace Comprehension.Controllers
         {
             if (!IsValid(@event))
             {
-                return BadRequest("Invalid event data.");
+                return BadRequest("Invalid e data.");
             }
             _context.Event.Add(@event);
             await _context.SaveChangesAsync();
@@ -109,9 +115,16 @@ namespace Comprehension.Controllers
             return _context.Event.Any(e => e.Id == id);
         }
 
-        private bool IsValid(Event @event)
+        private bool IsValid(Event e)
         {
-            // Add custom validation logic here
+            if (string.IsNullOrWhiteSpace(e.Title) || string.IsNullOrWhiteSpace(e.Description))
+            {
+                return false;
+            }
+            if (e.StartTime >= e.EndTime)
+            {
+                return false;
+            }
             return true;
         }
     }

@@ -1,10 +1,8 @@
-﻿using System.ComponentModel;
-
-namespace Comprehension.Models
+﻿namespace Comprehension.Models
 {
     public class Event
     {
-        public required Guid Id { get; set; }
+        public Guid Id { get; internal set; }
 
         public required string Title { get; set; }
 

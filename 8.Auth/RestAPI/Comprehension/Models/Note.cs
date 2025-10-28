@@ -1,18 +1,15 @@
-﻿using Newtonsoft.Json;
-using System.ComponentModel;
-
-namespace Comprehension.Models
+﻿namespace Comprehension.Models
 {
     public class Note
     {
-        public required Guid Id { get; set; }
+        public Guid Id { get; internal set; }
 
         public required string Title { get; set; }
 
         public required string Content { get; set; }
 
-        public required DateTime CreatedAt { get; set; }
+        public DateTime CreatedAt { get; internal set; }
 
-        public required DateTime UpdatedAt { get; set; }
+        public DateTime UpdatedAt { get; internal set; }
     }
 }

@@ -42,11 +42,18 @@ namespace Comprehension.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutNote(Guid id, Note note)
         {
+            // Ensures the ID is populated
+            if (note.Id == default)
+            {
+                note.Id = id;
+            }
+
             if (id != note.Id)
             {
                 return BadRequest();
             }
 
+            note.UpdatedAt = DateTime.UtcNow;
             _context.Entry(note).State = EntityState.Modified;
 
             try
@@ -73,6 +80,8 @@ namespace Comprehension.Controllers
         [HttpPost]
         public async Task<ActionResult<Note>> PostNote(Note note)
         {
+            note.CreatedAt = DateTime.UtcNow;
+            note.UpdatedAt = note.CreatedAt;
             _context.Note.Add(note);
             await _context.SaveChangesAsync();
 

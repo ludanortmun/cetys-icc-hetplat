@@ -42,6 +42,12 @@ namespace Comprehension.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutReminder(Guid id, Reminder reminder)
         {
+            // Ensures the ID is populated
+            if (reminder.Id == default)
+            {
+                reminder.Id = id;
+            }
+
             if (id != reminder.Id)
             {
                 return BadRequest();
