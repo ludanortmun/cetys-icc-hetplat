@@ -2,6 +2,7 @@
 using Comprehension.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 
 namespace Comprehension.Controllers
 {
@@ -59,6 +60,69 @@ namespace Comprehension.Controllers
             }
 
             _context.Entry(@event).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!EventExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return NoContent();
+        }
+
+        // PATCH: api/Events/5
+        [HttpPatch("{id}")]
+        [Consumes("application/merge-patch+json")]
+        public async Task<IActionResult> PatchEvent(Guid id, JsonElement patchData)
+        {
+            var @event = await _context.Event.FindAsync(id);
+            if (@event == null)
+            {
+                return NotFound();
+            }
+
+            // Apply the patch - only update fields that are present in the request
+            if (patchData.TryGetProperty("title", out JsonElement titleElement))
+            {
+                @event.Title = titleElement.GetString() ?? @event.Title;
+            }
+
+            if (patchData.TryGetProperty("description", out JsonElement descriptionElement))
+            {
+                @event.Description = descriptionElement.GetString() ?? @event.Description;
+            }
+
+            if (patchData.TryGetProperty("startTime", out JsonElement startTimeElement))
+            {
+                if (startTimeElement.TryGetDateTime(out DateTime startTime))
+                {
+                    @event.StartTime = startTime;
+                }
+            }
+
+            if (patchData.TryGetProperty("endTime", out JsonElement endTimeElement))
+            {
+                if (endTimeElement.TryGetDateTime(out DateTime endTime))
+                {
+                    @event.EndTime = endTime;
+                }
+            }
+
+            // Validate after patch
+            if (!IsValid(@event))
+            {
+                return BadRequest("Invalid data after applying patch.");
+            }
 
             try
             {

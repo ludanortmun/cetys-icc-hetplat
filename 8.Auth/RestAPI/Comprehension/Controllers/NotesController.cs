@@ -2,6 +2,7 @@
 using Comprehension.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 
 namespace Comprehension.Controllers
 {
@@ -55,6 +56,50 @@ namespace Comprehension.Controllers
 
             note.UpdatedAt = DateTime.UtcNow;
             _context.Entry(note).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!NoteExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return NoContent();
+        }
+
+        // PATCH: api/Notes/5
+        [HttpPatch("{id}")]
+        [Consumes("application/merge-patch+json")]
+        public async Task<IActionResult> PatchNote(Guid id, JsonElement patchData)
+        {
+            var note = await _context.Note.FindAsync(id);
+            if (note == null)
+            {
+                return NotFound();
+            }
+
+            // Apply the patch - only update fields that are present in the request
+            if (patchData.TryGetProperty("title", out JsonElement titleElement))
+            {
+                note.Title = titleElement.GetString() ?? note.Title;
+            }
+
+            if (patchData.TryGetProperty("content", out JsonElement contentElement))
+            {
+                note.Content = contentElement.GetString() ?? note.Content;
+            }
+
+            // Automatically update UpdatedAt on successful PATCH
+            note.UpdatedAt = DateTime.UtcNow;
 
             try
             {

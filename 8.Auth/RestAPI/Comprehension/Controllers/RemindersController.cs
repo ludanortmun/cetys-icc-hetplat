@@ -2,6 +2,7 @@
 using Comprehension.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 
 namespace Comprehension.Controllers
 {
@@ -54,6 +55,55 @@ namespace Comprehension.Controllers
             }
 
             _context.Entry(reminder).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!ReminderExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return NoContent();
+        }
+
+        // PATCH: api/Reminders/5
+        [HttpPatch("{id}")]
+        [Consumes("application/merge-patch+json")]
+        public async Task<IActionResult> PatchReminder(Guid id, JsonElement patchData)
+        {
+            var reminder = await _context.Reminder.FindAsync(id);
+            if (reminder == null)
+            {
+                return NotFound();
+            }
+
+            // Apply the patch - only update fields that are present in the request
+            if (patchData.TryGetProperty("message", out JsonElement messageElement))
+            {
+                reminder.Message = messageElement.GetString() ?? reminder.Message;
+            }
+
+            if (patchData.TryGetProperty("reminderTime", out JsonElement reminderTimeElement))
+            {
+                if (reminderTimeElement.TryGetDateTime(out DateTime reminderTime))
+                {
+                    reminder.ReminderTime = reminderTime;
+                }
+            }
+
+            if (patchData.TryGetProperty("isCompleted", out JsonElement isCompletedElement))
+            {
+                reminder.IsCompleted = isCompletedElement.GetBoolean();
+            }
 
             try
             {
