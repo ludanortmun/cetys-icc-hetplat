@@ -53,6 +53,15 @@ namespace Comprehension.Controllers
                 return BadRequest();
             }
 
+            var original = _context.Note
+                .AsNoTracking()
+                .FirstOrDefault(n => n.Id == id);
+            if (original is null)
+            {
+                return NotFound();
+            }
+
+            note.CreatedAt = original.CreatedAt;
             note.UpdatedAt = DateTime.UtcNow;
             _context.Entry(note).State = EntityState.Modified;
 
