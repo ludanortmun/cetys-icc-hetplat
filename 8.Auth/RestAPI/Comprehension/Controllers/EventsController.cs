@@ -104,23 +104,37 @@ namespace Comprehension.Controllers
 
             if (patchData.TryGetProperty("startTime", out JsonElement startTimeElement))
             {
-                if (startTimeElement.TryGetDateTime(out DateTime startTime))
+                if (!startTimeElement.TryGetDateTime(out DateTime startTime))
                 {
-                    @event.StartTime = startTime;
+                    return BadRequest("Invalid startTime format. Expected a valid ISO 8601 datetime.");
                 }
+                @event.StartTime = startTime;
             }
 
             if (patchData.TryGetProperty("endTime", out JsonElement endTimeElement))
             {
-                if (endTimeElement.TryGetDateTime(out DateTime endTime))
+                if (!endTimeElement.TryGetDateTime(out DateTime endTime))
                 {
-                    @event.EndTime = endTime;
+                    return BadRequest("Invalid endTime format. Expected a valid ISO 8601 datetime.");
                 }
+                @event.EndTime = endTime;
             }
 
             // Validate after patch
             if (!IsValid(@event))
             {
+                if (string.IsNullOrWhiteSpace(@event.Title))
+                {
+                    return BadRequest("Title is required and cannot be empty.");
+                }
+                if (string.IsNullOrWhiteSpace(@event.Description))
+                {
+                    return BadRequest("Description is required and cannot be empty.");
+                }
+                if (@event.StartTime >= @event.EndTime)
+                {
+                    return BadRequest("StartTime must be before EndTime.");
+                }
                 return BadRequest("Invalid data after applying patch.");
             }
 

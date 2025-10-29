@@ -94,10 +94,11 @@ namespace Comprehension.Controllers
 
             if (patchData.TryGetProperty("reminderTime", out JsonElement reminderTimeElement))
             {
-                if (reminderTimeElement.TryGetDateTime(out DateTime reminderTime))
+                if (!reminderTimeElement.TryGetDateTime(out DateTime reminderTime))
                 {
-                    reminder.ReminderTime = reminderTime;
+                    return BadRequest("Invalid reminderTime format. Expected a valid ISO 8601 datetime.");
                 }
+                reminder.ReminderTime = reminderTime;
             }
 
             if (patchData.TryGetProperty("isCompleted", out JsonElement isCompletedElement))
