@@ -1,8 +1,8 @@
 ﻿using Comprehension.Data;
+using Comprehension.DTOs;
 using Comprehension.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Text.Json;
 
 namespace Comprehension.Controllers
 {
@@ -78,7 +78,7 @@ namespace Comprehension.Controllers
         // PATCH: api/Reminders/5
         [HttpPatch("{id}")]
         [Consumes("application/merge-patch+json")]
-        public async Task<IActionResult> PatchReminder(Guid id, JsonElement patchData)
+        public async Task<IActionResult> PatchReminder(Guid id, [FromBody] ReminderPatchDto patch)
         {
             var reminder = await _context.Reminder.FindAsync(id);
             if (reminder == null)
@@ -86,24 +86,20 @@ namespace Comprehension.Controllers
                 return NotFound();
             }
 
-            // Apply the patch - only update fields that are present in the request
-            if (patchData.TryGetProperty("message", out JsonElement messageElement))
+            // Apply the patch - only update fields that are provided
+            if (patch.Message != null)
             {
-                reminder.Message = messageElement.GetString() ?? reminder.Message;
+                reminder.Message = patch.Message;
             }
 
-            if (patchData.TryGetProperty("reminderTime", out JsonElement reminderTimeElement))
+            if (patch.ReminderTime.HasValue)
             {
-                if (!reminderTimeElement.TryGetDateTime(out DateTime reminderTime))
-                {
-                    return BadRequest("Invalid reminderTime format. Expected a valid ISO 8601 datetime.");
-                }
-                reminder.ReminderTime = reminderTime;
+                reminder.ReminderTime = patch.ReminderTime.Value;
             }
 
-            if (patchData.TryGetProperty("isCompleted", out JsonElement isCompletedElement))
+            if (patch.IsCompleted.HasValue)
             {
-                reminder.IsCompleted = isCompletedElement.GetBoolean();
+                reminder.IsCompleted = patch.IsCompleted.Value;
             }
 
             try

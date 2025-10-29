@@ -1,8 +1,8 @@
 ﻿using Comprehension.Data;
+using Comprehension.DTOs;
 using Comprehension.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Text.Json;
 
 namespace Comprehension.Controllers
 {
@@ -79,7 +79,7 @@ namespace Comprehension.Controllers
         // PATCH: api/Notes/5
         [HttpPatch("{id}")]
         [Consumes("application/merge-patch+json")]
-        public async Task<IActionResult> PatchNote(Guid id, JsonElement patchData)
+        public async Task<IActionResult> PatchNote(Guid id, [FromBody] NotePatchDto patch)
         {
             var note = await _context.Note.FindAsync(id);
             if (note == null)
@@ -87,15 +87,15 @@ namespace Comprehension.Controllers
                 return NotFound();
             }
 
-            // Apply the patch - only update fields that are present in the request
-            if (patchData.TryGetProperty("title", out JsonElement titleElement))
+            // Apply the patch - only update fields that are provided
+            if (patch.Title != null)
             {
-                note.Title = titleElement.GetString() ?? note.Title;
+                note.Title = patch.Title;
             }
 
-            if (patchData.TryGetProperty("content", out JsonElement contentElement))
+            if (patch.Content != null)
             {
-                note.Content = contentElement.GetString() ?? note.Content;
+                note.Content = patch.Content;
             }
 
             // Automatically update UpdatedAt on successful PATCH

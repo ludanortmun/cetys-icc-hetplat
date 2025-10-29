@@ -1,8 +1,8 @@
 ﻿using Comprehension.Data;
+using Comprehension.DTOs;
 using Comprehension.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Text.Json;
 
 namespace Comprehension.Controllers
 {
@@ -83,7 +83,7 @@ namespace Comprehension.Controllers
         // PATCH: api/Events/5
         [HttpPatch("{id}")]
         [Consumes("application/merge-patch+json")]
-        public async Task<IActionResult> PatchEvent(Guid id, JsonElement patchData)
+        public async Task<IActionResult> PatchEvent(Guid id, [FromBody] EventPatchDto patch)
         {
             var @event = await _context.Event.FindAsync(id);
             if (@event == null)
@@ -91,33 +91,25 @@ namespace Comprehension.Controllers
                 return NotFound();
             }
 
-            // Apply the patch - only update fields that are present in the request
-            if (patchData.TryGetProperty("title", out JsonElement titleElement))
+            // Apply the patch - only update fields that are provided
+            if (patch.Title != null)
             {
-                @event.Title = titleElement.GetString() ?? @event.Title;
+                @event.Title = patch.Title;
             }
 
-            if (patchData.TryGetProperty("description", out JsonElement descriptionElement))
+            if (patch.Description != null)
             {
-                @event.Description = descriptionElement.GetString() ?? @event.Description;
+                @event.Description = patch.Description;
             }
 
-            if (patchData.TryGetProperty("startTime", out JsonElement startTimeElement))
+            if (patch.StartTime.HasValue)
             {
-                if (!startTimeElement.TryGetDateTime(out DateTime startTime))
-                {
-                    return BadRequest("Invalid startTime format. Expected a valid ISO 8601 datetime.");
-                }
-                @event.StartTime = startTime;
+                @event.StartTime = patch.StartTime.Value;
             }
 
-            if (patchData.TryGetProperty("endTime", out JsonElement endTimeElement))
+            if (patch.EndTime.HasValue)
             {
-                if (!endTimeElement.TryGetDateTime(out DateTime endTime))
-                {
-                    return BadRequest("Invalid endTime format. Expected a valid ISO 8601 datetime.");
-                }
-                @event.EndTime = endTime;
+                @event.EndTime = patch.EndTime.Value;
             }
 
             // Validate after patch
