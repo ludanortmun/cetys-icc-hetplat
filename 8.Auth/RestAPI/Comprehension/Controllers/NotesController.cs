@@ -1,4 +1,5 @@
 ﻿using Comprehension.Data;
+using Comprehension.DTOs;
 using Comprehension.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -64,6 +65,50 @@ namespace Comprehension.Controllers
             note.CreatedAt = original.CreatedAt;
             note.UpdatedAt = DateTime.UtcNow;
             _context.Entry(note).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!NoteExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return NoContent();
+        }
+
+        // PATCH: api/Notes/5
+        [HttpPatch("{id}")]
+        [Consumes("application/merge-patch+json")]
+        public async Task<IActionResult> PatchNote(Guid id, [FromBody] NotePatchDto patch)
+        {
+            var note = await _context.Note.FindAsync(id);
+            if (note == null)
+            {
+                return NotFound();
+            }
+
+            // Apply the patch - only update fields that are provided
+            if (patch.Title != null)
+            {
+                note.Title = patch.Title;
+            }
+
+            if (patch.Content != null)
+            {
+                note.Content = patch.Content;
+            }
+
+            // Automatically update UpdatedAt on successful PATCH
+            note.UpdatedAt = DateTime.UtcNow;
 
             try
             {

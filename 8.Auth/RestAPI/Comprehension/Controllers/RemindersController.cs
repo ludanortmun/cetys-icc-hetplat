@@ -1,4 +1,5 @@
 ﻿using Comprehension.Data;
+using Comprehension.DTOs;
 using Comprehension.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -54,6 +55,52 @@ namespace Comprehension.Controllers
             }
 
             _context.Entry(reminder).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!ReminderExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return NoContent();
+        }
+
+        // PATCH: api/Reminders/5
+        [HttpPatch("{id}")]
+        [Consumes("application/merge-patch+json")]
+        public async Task<IActionResult> PatchReminder(Guid id, [FromBody] ReminderPatchDto patch)
+        {
+            var reminder = await _context.Reminder.FindAsync(id);
+            if (reminder == null)
+            {
+                return NotFound();
+            }
+
+            // Apply the patch - only update fields that are provided
+            if (patch.Message != null)
+            {
+                reminder.Message = patch.Message;
+            }
+
+            if (patch.ReminderTime.HasValue)
+            {
+                reminder.ReminderTime = patch.ReminderTime.Value;
+            }
+
+            if (patch.IsCompleted.HasValue)
+            {
+                reminder.IsCompleted = patch.IsCompleted.Value;
+            }
 
             try
             {

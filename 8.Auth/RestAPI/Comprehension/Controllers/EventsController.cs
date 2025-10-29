@@ -1,4 +1,5 @@
 ﻿using Comprehension.Data;
+using Comprehension.DTOs;
 using Comprehension.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -59,6 +60,74 @@ namespace Comprehension.Controllers
             }
 
             _context.Entry(@event).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!EventExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return NoContent();
+        }
+
+        // PATCH: api/Events/5
+        [HttpPatch("{id}")]
+        [Consumes("application/merge-patch+json")]
+        public async Task<IActionResult> PatchEvent(Guid id, [FromBody] EventPatchDto patch)
+        {
+            var @event = await _context.Event.FindAsync(id);
+            if (@event == null)
+            {
+                return NotFound();
+            }
+
+            // Apply the patch - only update fields that are provided
+            if (patch.Title != null)
+            {
+                @event.Title = patch.Title;
+            }
+
+            if (patch.Description != null)
+            {
+                @event.Description = patch.Description;
+            }
+
+            if (patch.StartTime.HasValue)
+            {
+                @event.StartTime = patch.StartTime.Value;
+            }
+
+            if (patch.EndTime.HasValue)
+            {
+                @event.EndTime = patch.EndTime.Value;
+            }
+
+            // Validate after patch
+            if (!IsValid(@event))
+            {
+                if (string.IsNullOrWhiteSpace(@event.Title))
+                {
+                    return BadRequest("Title is required and cannot be empty.");
+                }
+                if (string.IsNullOrWhiteSpace(@event.Description))
+                {
+                    return BadRequest("Description is required and cannot be empty.");
+                }
+                if (@event.StartTime >= @event.EndTime)
+                {
+                    return BadRequest("StartTime must be before EndTime.");
+                }
+            }
 
             try
             {
