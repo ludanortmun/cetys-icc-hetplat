@@ -135,7 +135,6 @@ namespace Comprehension.Controllers
                 {
                     return BadRequest("StartTime must be before EndTime.");
                 }
-                return BadRequest("Invalid data after applying patch.");
             }
 
             try
